@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Редактирование группы</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Данные группы</div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Название группы</label>
+                        <input type="text" name="name" class="form-control" value="{{ group.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        <textarea name="description" class="form-control" rows="3">{{ group.description }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <a href="{{ url_for('admin_groups') }}" class="btn btn-secondary">Отмена</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Пользователи в группе</div>
+            <div class="card-body">
+                {% if group.users %}
+                    <ul class="list-group">
+                        {% for user_group in group.users %}
+                            <li class="list-group-item">{{ user_group.user.username }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>В группе нет пользователей</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

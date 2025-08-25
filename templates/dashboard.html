@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Добро пожаловать, {{ user.username }}!</h2>
+<p>Ваша роль: <strong>{{ user.role }}</strong></p>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Ваш профиль</div>
+            <div class="card-body">
+                <p>Имя пользователя: {{ user.username }}</p>
+                <a href="{{ url_for('profile') }}" class="btn btn-primary">Редактировать профиль</a>
+            </div>
+        </div>
+    </div>
+    
+    {% if user.role == 'admin' %}
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Административная панель</div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-success">Управление пользователями</a>
+                    <a href="{{ url_for('admin_groups') }}" class="btn btn-info">Управление группами</a>
+                    <a href="{{ url_for('create_user') }}" class="btn btn-warning">Создать пользователя</a>
+                    <a href="{{ url_for('create_group') }}" class="btn btn-secondary">Создать группу</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Управление группами</h2>
+<a href="{{ url_for('create_group') }}" class="btn btn-primary mb-3">Создать группу</a>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Список групп</h4>
+        {% for group in groups %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>{{ group.name }}</strong>
+                <span class="badge bg-secondary">{{ group.users|length }} пользователей</span>
+            </div>
+            <!-- В карточке группы добавьте кнопки -->
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ group.name }}</strong>
+                    <span class="badge bg-secondary">{{ group.users|length }} пользователей</span>
+                </div>
+                <div>
+                    <a href="{{ url_for('edit_group', group_id=group.id) }}" class="btn btn-sm btn-primary">Редактировать</a>
+                    <a href="{{ url_for('delete_group', group_id=group.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Удалить группу?')">Удалить</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <p>{{ group.description }}</p>
+                {% if group.users %}
+                <h6>Пользователи в группе:</h6>
+                <ul class="list-group">
+                    {% for user_group in group.users %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ user_group.user.username }}
+                        <a href="{{ url_for('remove_user_from_group', user_group_id=user_group.id) }}" 
+                           class="btn btn-sm btn-danger" 
+                           onclick="return confirm('Удалить пользователя из группы?')">
+                            Удалить
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">В группе нет пользователей</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-6">
+        <h4>Добавить пользователя в группу</h4>
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_user_to_group') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Пользователь</label>
+                        <select name="user_id" class="form-select" required>
+                            <option value="">Выберите пользователя</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }} ({{ user.role }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Группа</label>
+                        <select name="group_id" class="form-select" required>
+                            <option value="">Выберите группу</option>
+                            {% for group in groups %}
+                            <option value="{{ group.id }}">{{ group.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Добавить в группу</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Редактирование профиля</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Ваши данные</div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="update_profile" value="true">
+                    <div class="mb-3">
+                        <label class="form-label">Логин</label>
+                        <input type="text" name="username" class="form-control" value="{{ current_user.username }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" value="{{ current_user.email }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Новый пароль (оставьте пустым, если не хотите менять)</label>
+                        <input type="password" name="password" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Текущая роль</label>
+                        <input type="text" class="form-control" value="{{ current_user.role }}" disabled>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Отмена</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Ваши группы</div>
+            <div class="card-body">
+                {% if current_user.groups %}
+                    <ul class="list-group">
+                        {% for user_group in current_user.groups %}
+                            <li class="list-group-item">{{ user_group.group.name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Вы не состоите ни в одной группе</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if current_user.role == 'admin' %}
+        <div class="card mt-3">
+            <div class="card-header">Назначение группы пользователю</div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="assign_group" value="true">
+                    <div class="mb-3">
+                        <label class="form-label">Пользователь</label>
+                        <select name="user_id" class="form-select" required>
+                            <option value="">Выберите пользователя</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }} ({{ user.role }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Группа</label>
+                        <select name="group_id" class="form-select" required>
+                            <option value="">Выберите группу</option>
+                            {% for group in groups %}
+                            <option value="{{ group.id }}">{{ group.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Назначить группу</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

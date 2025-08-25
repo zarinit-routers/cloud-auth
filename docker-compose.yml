@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://postgres:1@db:5432/adminka
+      - ROOT_USER_EMAIL=root@admin.com
+      - ROOT_USER_PASSWORD=1
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    command: >
+      sh -c "python app.py"
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=adminka
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
