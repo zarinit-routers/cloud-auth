@@ -6,7 +6,7 @@ import re
 import os
 from flask_migrate import Migrate 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'your-secret-key'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'postgresql://postgres:1@localhost/adminka'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

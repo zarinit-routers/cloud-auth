@@ -2,3 +2,4 @@ __*/
 *venv/
 *.db
 .*/
+node_modules/
