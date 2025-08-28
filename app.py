@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from models import db, User, Group, UserGroup
 from functools import wraps
@@ -8,7 +8,7 @@ from flask_migrate import Migrate
 
 app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'your-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'postgresql://postgres:1@localhost/adminka'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1@localhost/adminka'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -274,6 +274,25 @@ def delete_group(group_id):
     flash('Группа удалена')
     return redirect(url_for('admin_groups'))
 
+
+@app.route('/admin/generate-group-password/<int:group_id>', methods=['POST'])
+@login_required
+@admin_required
+def generate_group_password(group_id):
+    group = Group.query.get_or_404(group_id)
+    new_password = group.generate_password_phrase()
+    db.session.commit()
+    return jsonify({'success': True, 'password': new_password})
+
+@app.route('/admin/clear-group-password/<int:group_id>', methods=['POST'])
+@login_required
+@admin_required
+def clear_group_password(group_id):
+    group = Group.query.get_or_404(group_id)
+    group.password_phrase = None
+    db.session.commit()
+    return jsonify({'success': True})
+
 @app.route('/admin/add-user-to-group', methods=['POST'])
 @login_required
 @admin_required
@@ -302,6 +321,60 @@ def add_user_to_group():
     
     return redirect(url_for('admin_groups'))
 
+
+# API endpoints
+@app.route('/api/check-group', methods=['POST'])
+def api_check_group():
+    try:
+        data = request.get_json()
+        group_name = data.get('group_name')
+        password_phrase = data.get('password_phrase', '')
+        
+        if not group_name:
+            return jsonify({'error': 'Group name is required'}), 400
+        
+        # Используем глобальный клиент или создаем новый
+        from grpc_client import get_auth_client
+        client = get_auth_client()
+        result = client.check_group(group_name, password_phrase)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'error': f'Server error: {str(e)}',
+            'exists': False,
+            'valid_password': False,
+            'group_description': "",
+            'message': ""
+        }), 500
+
+@app.route('/api/generate-password', methods=['POST'])
+@login_required
+@admin_required
+def api_generate_password():
+    try:
+        data = request.get_json()
+        group_name = data.get('group_name')
+        
+        if not group_name:
+            return jsonify({'error': 'Group name is required'}), 400
+        
+        from grpc_client import get_auth_client
+        client = get_auth_client()
+        result = client.generate_group_password(group_name)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'password': '',
+            'error': f'Server error: {str(e)}'
+        }), 500
+    
+
+    
 @app.route('/admin/remove-user-from-group/<int:user_group_id>')
 @login_required
 @admin_required
@@ -315,7 +388,6 @@ def remove_user_from_group(user_group_id):
 ROOT_USER_NAME = 'root'
 ROOT_USER_EMAIL = os.environ.get('ROOT_USER_EMAIL') or 'root@admin.com'
 ROOT_USER_PASSWORD = os.environ.get('ROOT_USER_PASSWORD') or 'admin123'
-
 
 APP_DEBUG = os.environ.get('FLASK_ENV') == 'development' or False
 
@@ -331,4 +403,6 @@ if __name__ == '__main__':
         # Создаем администратора по умолчанию
         if not User.query.filter_by(email=ROOT_USER_EMAIL).first():
             create_admin()
-    app.run(debug=APP_DEBUG, host='0.0.0.0', port=5000)
+    
+    # Запускаем Flask приложение
+    app.run(debug=APP_DEBUG, host='0.0.0.0', port=5001)

@@ -1,31 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="md-typescale-display-large">Вход в систему</h1>
+<h1 class="mb-4">Вход в систему</h1>
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
                 <form method="POST">
                     <div class="mb-3">
-                        <md-outlined-text-field label="Email" type="email" name="email" required>
-                        </md-outlined-text-field>
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <md-outlined-text-field type="password" name="password" required>
+                        <label class="form-label">Пароль</label>
+                        <input type="password" name="password" class="form-control" required>
                     </div>
-                    <md-filled-button type="submit">
-                        Войти
-                    </md-filled-button>
+                    <button type="submit" class="btn btn-primary w-100">Войти</button>
                 </form>
             </div>
         </div>
     </div>
-    <style>
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem
-        }
-    </style>
 </div>
 {% endblock %}
