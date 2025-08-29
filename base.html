@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html theme="dark" data-bs-theme="dark">
+<head>
+    <title>{% block title %}Система управления{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --dark-bg: #1a1d21;
+            --card-bg: #24262b;
+            --form-bg: #2a2d33;
+            --purple-primary: #6c42f5;
+            --purple-secondary: #8b66ff;
+            --purple-gradient: linear-gradient(135deg, var(--purple-primary), var(--purple-secondary));
+            --text-light: #f0f2f5;
+            --text-muted: #9aa0a6;
+            --border-color: #3c4043;
+            --success: #00c851;
+            --info: #33b5e5;
+            --warning: #ffbb33;
+            --danger: #ff4444;
+        }
+
+        body {
+            background: var(--dark-bg) !important;
+            color: var(--text-light) !important;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Улучшенная навигационная панель */
+        .navbar {
+            background: rgba(36, 38, 43, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.8rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            background: var(--purple-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            color: var(--text-muted) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin: 0 0.2rem;
+        }
+
+        .nav-link:hover {
+            color: var(--text-light) !important;
+            background: rgba(108, 66, 245, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Карточки с современным дизайном */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(108, 66, 245, 0.15);
+        }
+
+        .card-header {
+            background: rgba(36, 38, 43, 0.8) !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Современные кнопки */
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--purple-gradient) !important;
+            box-shadow: 0 4px 15px rgba(108, 66, 245, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 66, 245, 0.4);
+        }
+
+        .btn-success { background: linear-gradient(135deg, var(--success), #00a344) !important; }
+        .btn-info { background: linear-gradient(135deg, var(--info), #1a9bc8) !important; }
+        .btn-warning { background: linear-gradient(135deg, var(--warning), #ff9900) !important; }
+        .btn-secondary { background: linear-gradient(135deg, #6c757d, #5a6268) !important; }
+
+        /* Улучшенные формы */
+        .form-control, .form-select {
+            background: var(--form-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-light);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--form-bg);
+            border-color: var(--purple-primary);
+            box-shadow: 0 0 0 0.2rem rgba(108, 66, 245, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .form-label {
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Улучшенные таблицы */
+        .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--text-light);
+            --bs-table-border-color: var(--border-color);
+        }
+
+        .table th {
+            background: rgba(36, 38, 43, 0.8) !important;
+            border-color: var(--border-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+            padding: 1rem;
+        }
+
+        .table td {
+            background: rgba(255, 255, 255, 0.02) !important;
+            border-color: var(--border-color);
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .table-hover tbody tr:hover {
+            background: rgba(108, 66, 245, 0.1) !important;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        /* Списки */
+        .list-group-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 12px !important;
+            transition: all 0.3s ease;
+        }
+
+        .list-group-item:hover {
+            background: rgba(108, 66, 245, 0.1);
+            transform: translateX(4px);
+        }
+
+        /* Бейджи */
+        .badge {
+            font-weight: 600;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .bg-primary {
+            background: var(--purple-gradient) !important;
+        }
+
+        /* Уведомления */
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-info {
+            background: rgba(51, 181, 229, 0.15) !important;
+            color: var(--info) !important;
+            border-left: 4px solid var(--info);
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        
+
+        /* Кастомный скроллбар */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--purple-primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--purple-secondary);
+        }
+
+        /* Улучшенная адаптивность */
+        @media (max-width: 768px) {
+            .navbar-nav {
+                background: var(--card-bg);
+                padding: 1rem;
+                border-radius: 12px;
+                margin-top: 1rem;
+            }
+            
+            .nav-link {
+                margin: 0.25rem 0;
+            }
+            
+            .card {
+                margin-bottom: 1rem;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        /* Дополнительные стили для иконок */
+        .bi {
+            margin-right: 0.5rem;
+            font-size: 1.1em;
+        }
+
+        /* Градиентные акценты */
+        .gradient-border {
+            position: relative;
+            border-radius: 16px;
+        }
+
+        .gradient-border::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--purple-gradient);
+            border-radius: 18px;
+            z-index: -1;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+    <script src="{{ url_for('static', filename='bundle.js') }}"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <i class="bi bi-shield-lock"></i>Система управления
+            </a>
+            {% if current_user.is_authenticated %}
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="{{ url_for('profile') }}">
+                        <i class="bi bi-person"></i>Профиль
+                    </a>
+                    {% if current_user.role == 'admin' %}
+                    <a class="nav-link" href="{{ url_for('admin_users') }}">
+                        <i class="bi bi-people"></i>Пользователи
+                    </a>
+                    <a class="nav-link" href="{{ url_for('admin_groups') }}">
+                        <i class="bi bi-collection"></i>Группы
+                    </a>
+                    {% endif %}
+                    <a class="nav-link" href="{{ url_for('logout') }}">
+                        <i class="bi bi-box-arrow-right"></i>Выйти
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="flex-grow-1">
+        <div class="container mt-4">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <i class="bi bi-info-circle"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="mt-5 py-4 border-top border-secondary">
+        <div class="container text-center text-muted">
+            <p>&copy; 2025 Система управления. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
