@@ -38,7 +38,7 @@ def admin_required(f):
 def index():
     return redirect(url_for('login'))
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/auth/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
@@ -57,18 +57,18 @@ def login():
     
     return render_template('login.html')
 
-@app.route('/logout')
+@app.route('/auth/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route('/dashboard')
+@app.route('/auth/dashboard')
 @login_required
 def dashboard():
     return render_template('dashboard.html', user=current_user)
 
-@app.route('/profile', methods=['GET', 'POST'])
+@app.route('/auth/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
     groups = Group.query.all()
@@ -122,14 +122,14 @@ def profile():
     return render_template('profile.html', groups=groups)
 
 # Админские роуты
-@app.route('/admin/users')
+@app.route('/auth/admin/users')
 @login_required
 @admin_required
 def admin_users():
     users = User.query.all()
     return render_template('admin/users.html', users=users)
 
-@app.route('/admin/create-user', methods=['GET', 'POST'])
+@app.route('/auth/admin/create-user', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def create_user():
@@ -160,7 +160,7 @@ def create_user():
     
     return render_template('admin/create_user.html')
 
-@app.route('/admin/edit-user/<int:user_id>', methods=['GET', 'POST'])
+@app.route('/auth/admin/edit-user/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def edit_user(user_id):
@@ -199,7 +199,7 @@ def edit_user(user_id):
     
     return render_template('admin/edit_user.html', user=user, groups=groups)
 
-@app.route('/admin/delete-user/<int:user_id>')
+@app.route('/auth/admin/delete-user/<int:user_id>')
 @login_required
 @admin_required
 def delete_user(user_id):
@@ -213,7 +213,7 @@ def delete_user(user_id):
     flash('Пользователь удален')
     return redirect(url_for('admin_users'))
 
-@app.route('/admin/groups')
+@app.route('/auth/admin/groups')
 @login_required
 @admin_required
 def admin_groups():
@@ -221,7 +221,7 @@ def admin_groups():
     users = User.query.all()
     return render_template('admin/groups.html', groups=groups, users=users)
 
-@app.route('/admin/create-group', methods=['GET', 'POST'])
+@app.route('/auth/admin/create-group', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def create_group():
@@ -241,7 +241,7 @@ def create_group():
     
     return render_template('admin/create_group.html')
 
-@app.route('/admin/edit-group/<int:group_id>', methods=['GET', 'POST'])
+@app.route('/auth/admin/edit-group/<int:group_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def edit_group(group_id):
@@ -264,7 +264,7 @@ def edit_group(group_id):
     
     return render_template('admin/edit_group.html', group=group)
 
-@app.route('/admin/delete-group/<int:group_id>')
+@app.route('/auth/admin/delete-group/<int:group_id>')
 @login_required
 @admin_required
 def delete_group(group_id):
@@ -275,7 +275,7 @@ def delete_group(group_id):
     return redirect(url_for('admin_groups'))
 
 
-@app.route('/admin/generate-group-password/<int:group_id>', methods=['POST'])
+@app.route('/auth/admin/generate-group-password/<int:group_id>', methods=['POST'])
 @login_required
 @admin_required
 def generate_group_password(group_id):
@@ -284,7 +284,7 @@ def generate_group_password(group_id):
     db.session.commit()
     return jsonify({'success': True, 'password': new_password})
 
-@app.route('/admin/clear-group-password/<int:group_id>', methods=['POST'])
+@app.route('/auth/admin/clear-group-password/<int:group_id>', methods=['POST'])
 @login_required
 @admin_required
 def clear_group_password(group_id):
@@ -293,7 +293,7 @@ def clear_group_password(group_id):
     db.session.commit()
     return jsonify({'success': True})
 
-@app.route('/admin/add-user-to-group', methods=['POST'])
+@app.route('/auth/admin/add-user-to-group', methods=['POST'])
 @login_required
 @admin_required
 def add_user_to_group():
@@ -323,7 +323,7 @@ def add_user_to_group():
 
 
 # API endpoints
-@app.route('/api/check-group', methods=['POST'])
+@app.route('/auth/api/check-group', methods=['POST'])
 def api_check_group():
     try:
         data = request.get_json()
@@ -349,7 +349,7 @@ def api_check_group():
             'message': ""
         }), 500
 
-@app.route('/api/generate-password', methods=['POST'])
+@app.route('/auth/api/generate-password', methods=['POST'])
 @login_required
 @admin_required
 def api_generate_password():
@@ -375,7 +375,7 @@ def api_generate_password():
     
 
     
-@app.route('/admin/remove-user-from-group/<int:user_group_id>')
+@app.route('/auth/admin/remove-user-from-group/<int:user_group_id>')
 @login_required
 @admin_required
 def remove_user_from_group(user_group_id):
@@ -403,6 +403,6 @@ if __name__ == '__main__':
         # Создаем администратора по умолчанию
         if not User.query.filter_by(email=ROOT_USER_EMAIL).first():
             create_admin()
-    
+
     # Запускаем Flask приложение
     app.run(debug=APP_DEBUG, host='0.0.0.0', port=5001)
