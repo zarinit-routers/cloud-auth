@@ -7,7 +7,6 @@ import os
 from flask_migrate import Migrate 
 
 app = Flask(__name__, static_folder='static')
-# Исправляем SECRET_KEY и DATABASE_URI
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI', 'postgresql://postgres:1@localhost/adminka')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -68,6 +67,25 @@ def logout():
 @login_required
 def dashboard():
     return render_template('dashboard.html', user=current_user)
+
+@app.route('/auth/api/check-auth', methods=['GET'])
+def check_auth():
+    """Проверка статуса авторизации пользователя"""
+    if current_user.is_authenticated:
+        return jsonify({
+            'authenticated': True,
+            'user': {
+                'id': current_user.id,
+                'username': current_user.username,
+                'email': current_user.email,
+                'role': current_user.role
+            }
+        })
+    else:
+        return jsonify({
+            'authenticated': False,
+            'user': None
+        })
 
 @app.route('/auth/profile', methods=['GET', 'POST'])
 @login_required

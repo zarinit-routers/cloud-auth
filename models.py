@@ -25,7 +25,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    # Изменяем длину хэша пароля с 120 на 255 символов
+    # Изменено с 120 на 255 символов
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), default='user')
     
@@ -50,7 +50,7 @@ class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text)
-    password_phrase = db.Column(db.String(255), nullable=True)  # Новое поле для парольной фразы
+    password_phrase = db.Column(db.String(255), nullable=True)
     
     users = db.relationship('UserGroup', backref='group', lazy=True, cascade='all, delete-orphan')
     
