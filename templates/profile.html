@@ -79,5 +79,50 @@
         </div>
         {% endif %}
     </div>
+    <!-- В templates/profile.html добавьте отображение групповой информации -->
+        <div class="card mb-3">
+        <div class="card-header">
+            <h5>Групповая информация</h5>
+        </div>
+        <div class="card-body">
+            {% if current_user.get_group() %}
+            <div class="mb-3">
+                <strong>Группа:</strong> {{ current_user.get_group().name }}
+            </div>
+            <div class="mb-3">
+                <strong>Описание группы:</strong> {{ current_user.get_group().description }}
+            </div>
+            {% if current_user.role == 'admin' %}
+            <div class="mb-3">
+                <strong>Парольная фраза группы:</strong> 
+                <span class="text-muted">(доступно только администраторам)</span>
+                <div class="input-group">
+                    <input type="password" class="form-control" 
+                        value="{{ current_user.get_group().password_phrase or 'Не установлена' }}" 
+                        readonly>
+                    <button class="btn btn-outline-secondary" type="button" 
+                            onclick="togglePassword(this.previousElementSibling)">
+                        👁️
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <p class="text-muted">Вы не состоите ни в одной группе</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
+
+
+<script>
+function togglePassword(inputElement) {
+    if (inputElement.type === 'password') {
+        inputElement.type = 'text';
+    } else {
+        inputElement.type = 'password';
+    }
+}
+</script>
+
 {% endblock %}

@@ -9,11 +9,6 @@
         <h4>Список групп</h4>
         {% for group in groups %}
         <div class="card mb-3">
-            <div class="card-header">
-                <strong>{{ group.name }}</strong>
-                <span class="badge bg-secondary">{{ group.users|length }} пользователей</span>
-            </div>
-            <!-- В карточке группы добавьте кнопки -->
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
                     <strong>{{ group.name }}</strong>
@@ -26,6 +21,31 @@
             </div>
             <div class="card-body">
                 <p>{{ group.description }}</p>
+                
+                <!-- Парольная фраза группы -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>Парольная фраза группы:</strong></label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="password-{{ group.id }}" 
+                               value="{{ group.password_phrase or 'Не установлена' }}" readonly>
+                        <button class="btn btn-outline-secondary" type="button" 
+                                onclick="togglePassword('password-{{ group.id }}')">
+                            👁️
+                        </button>
+                        <button class="btn btn-outline-primary" type="button"
+                                onclick="generateGroupPassword('{{ group.id }}')">
+                            Сгенерировать
+                        </button>
+                        {% if group.password_phrase %}
+                        <button class="btn btn-outline-danger" type="button"
+                                onclick="clearGroupPassword('{{ group.id }}')">
+                            Очистить
+                        </button>
+                        {% endif %}
+                    </div>
+                    <small class="form-text text-muted">Используется для подключения роутеров к этой группе</small>
+                </div>
+
                 {% if group.users %}
                 <h6>Пользователи в группе:</h6>
                 <ul class="list-group">
@@ -77,4 +97,69 @@
         </div>
     </div>
 </div>
+
+<script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+        input.type = 'text';
+    } else {
+        input.type = 'password';
+    }
+}
+
+function generateGroupPassword(groupId) {
+    const id = parseInt(groupId);
+    if (confirm('Сгенерировать новую парольную фразу? Старая будет удалена.')) {
+        fetch('/admin/generate-group-password/' + id, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const input = document.getElementById('password-' + groupId);
+                input.value = data.password;
+                alert('Новая парольная фраза сгенерирована!');
+                location.reload();
+            } else {
+                alert('Ошибка при генерации парольной фразы');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при генерации парольной фразы');
+        });
+    }
+}
+
+function clearGroupPassword(groupId) {
+    const id = parseInt(groupId);
+    if (confirm('Очистить парольную фразу?')) {
+        fetch('/admin/clear-group-password/' + id, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const input = document.getElementById('password-' + groupId);
+                input.value = 'Не установлена';
+                alert('Парольная фраза очищена!');
+                location.reload();
+            } else {
+                alert('Ошибка при очистке парольной фразы');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при очистке парольной фразы');
+        });
+    }
+}
+</script>
 {% endblock %}

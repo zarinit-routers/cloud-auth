@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Порт для приложения
-EXPOSE 5000
+EXPOSE 5001
 
 # Создание пользователя для безопасности
 RUN useradd -m -u 1000 appuser

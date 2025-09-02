@@ -2,15 +2,31 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 import re
+import secrets
+import string
 
 db = SQLAlchemy()
+
+def generate_secure_password(length=24):
+    """Генерация безопасной случайной строки"""
+    # Используем буквы (верхний и нижний регистр), цифры и специальные символы
+    alphabet = string.ascii_letters + string.digits + string.punctuation
+    # Убедимся, что пароль содержит хотя бы один символ каждого типа
+    while True:
+        password = ''.join(secrets.choice(alphabet) for _ in range(length))
+        if (any(c.islower() for c in password) and 
+            any(c.isupper() for c in password) and 
+            any(c.isdigit() for c in password) and
+            any(c in string.punctuation for c in password)):
+            return password
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(120), nullable=False)
+    # Изменено с 120 на 255 символов
+    password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), default='user')
     
     groups = db.relationship('UserGroup', backref='user', lazy=True, cascade='all, delete-orphan')
@@ -34,8 +50,21 @@ class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text)
+    password_phrase = db.Column(db.String(255), nullable=True)
     
     users = db.relationship('UserGroup', backref='group', lazy=True, cascade='all, delete-orphan')
+    
+    def generate_password_phrase(self):
+        """Генерирует парольную фразу для группы"""
+        import random
+        import string
+        new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
+        self.password_phrase = new_password
+        return new_password
+    
+    def check_password_phrase(self, phrase):
+        """Проверка парольной фразы"""
+        return self.password_phrase == phrase
 
 class UserGroup(db.Model):
     __tablename__ = 'user_groups'
