@@ -1,0 +1,111 @@
+package handlers
+
+import (
+	"net/http"
+	"time"
+
+	"auth-service/database"
+	"auth-service/models"
+
+	"github.com/charmbracelet/log"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/spf13/viper"
+)
+
+// Login обрабатывает аутентификацию пользователя
+func Login(c *gin.Context) {
+	var loginData struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	if err := c.ShouldBindJSON(&loginData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var user models.User
+	if err := database.DB.Where("email = ?", loginData.Email).First(&user).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+
+	if !user.CheckPassword(loginData.Password) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+
+	// Создаем claims
+	claims := jwt.MapClaims{
+		"userId": user.ID,
+		"roles":  user.Roles,
+		"exp":    time.Now().Add(time.Hour * 24).Unix(),
+	}
+
+	// Создаем токен
+	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
+
+	// Используем единый источник для секретного ключа
+	secretKey := []byte(viper.GetString("jwt-security-key"))
+
+	tokenString, err := token.SignedString(secretKey)
+	if err != nil {
+		log.Error("Failed to generate token", "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"token":   tokenString,
+		"user": gin.H{
+			"id":       user.ID,
+			"username": user.Username,
+			"email":    user.Email,
+			"roles":    user.Roles,
+		},
+	})
+}
+
+// UpdateProfile обновляет профиль пользователя
+func UpdateProfile(c *gin.Context) {
+	userFromContext, _ := c.Get("user")
+	userModel := userFromContext.(models.User)
+
+	var updateData struct {
+		Username string `json:"username"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := c.ShouldBindJSON(&updateData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Обновляем поля
+	userModel.Username = updateData.Username
+	userModel.Email = updateData.Email
+
+	if updateData.Password != "" {
+		if err := userModel.SetPassword(updateData.Password); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to set password"})
+			return
+		}
+	}
+
+	if err := database.DB.Save(&userModel).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Profile updated successfully",
+		"user": gin.H{
+			"id":       userModel.ID,
+			"username": userModel.Username,
+			"email":    userModel.Email,
+			"role":     userModel.Roles,
+		},
+	})
+}

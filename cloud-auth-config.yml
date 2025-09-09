@@ -1,0 +1,5 @@
+db-connection-string: "host=localhost user=postgres password=1 dbname=adminka port=5433 sslmode=disable TimeZone=UTC client_encoding=UTF8"
+port: 5001
+
+root-user-email: root@admin.com
+root-user-password: admin123
