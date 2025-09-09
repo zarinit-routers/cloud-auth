@@ -18,13 +18,16 @@ type User struct {
 	Username     string  `gorm:"unique;not null" json:"username"`
 	Email        string  `gorm:"unique;not null" json:"email"`
 	PasswordHash string  `gorm:"not null" json:"-"`
-	Roles        []*Role `gorm:"many2many:user_roles;" json:"roles,omitempty"`
+	Roles        []*Role `gorm:"many2many:user_roles;foreignKey:Refer;joinForeignKey:UserReferID;References:UserRefer;joinReferences:ProfileRefer" json:"roles,omitempty"`
+
+	Refer uint `gorm:"index:,unique"`
 }
 
 type Role struct {
 	*BaseModel
-	Name  string  `gorm:"unique;not null" json:"name"`
-	Users []*User `gorm:"many2many:user_roles;" json:"users,omitempty"`
+	Name      string  `gorm:"unique;not null" json:"name"`
+	Users     []*User `gorm:"many2many:user_roles;" json:"users,omitempty"`
+	UserRefer uint    `gorm:"index:,unique"`
 }
 
 // type UserRole struct {
