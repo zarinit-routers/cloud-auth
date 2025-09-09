@@ -28,8 +28,8 @@ type Role struct {
 }
 
 type UserRole struct {
-	UserID uuid.UUID `gorm:"type:uuid;not null;primary_key" json:"userId"`
-	RoleID uuid.UUID `gorm:"type:uuid;not null;primary_key" json:"roleId"`
+	UserID uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();not null;primary_key" json:"userId"`
+	RoleID uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();not null;primary_key" json:"roleId"`
 }
 
 func (u *User) IsAdmin() bool {
