@@ -53,6 +53,7 @@ func MigrateModels(db *gorm.DB) error {
 	tables := []any{
 		&models.User{},
 		&models.Role{},
+		&models.UserRole{},
 	}
 
 	if err := db.AutoMigrate(tables...); err != nil {

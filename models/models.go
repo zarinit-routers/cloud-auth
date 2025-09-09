@@ -18,13 +18,18 @@ type User struct {
 	Username     string `gorm:"unique;not null" json:"username"`
 	Email        string `gorm:"unique;not null" json:"email"`
 	PasswordHash string `gorm:"not null" json:"-"`
-	Roles        []Role `gorm:"many2many:user_roles;" json:"roles,omitempty"`
+	Roles        []Role `json:"roles,omitempty"`
 }
 
 type Role struct {
 	*BaseModel
 	Name  string `gorm:"unique;not null" json:"name"`
-	Users []User `gorm:"many2many:user_roles;" json:"users,omitempty"`
+	Users []User `json:"users,omitempty"`
+}
+
+type UserRole struct {
+	UserID uuid.UUID `gorm:"type:uuid;not null;primary_key" json:"userId"`
+	RoleID uuid.UUID `gorm:"type:uuid;not null;primary_key" json:"roleId"`
 }
 
 func (u *User) IsAdmin() bool {
