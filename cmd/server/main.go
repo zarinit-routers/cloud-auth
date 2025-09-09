@@ -32,11 +32,11 @@ func init() {
 func initDatabase() {
 	db, err := database.InitDB()
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Fatal("Failed to connect to database", "error", err)
 	}
 
 	if err := database.MigrateModels(db); err != nil {
-		log.Fatal("Failed to migrate models:", err)
+		log.Fatal("Failed to migrate models", "error", err)
 	}
 }
 
@@ -71,11 +71,11 @@ func main() {
 // ensureAdminCreated создает root пользователя если не существует
 func ensureAdminCreated() {
 
-	viper.SetDefault("root-user-email", "root@admin.com")
-	viper.SetDefault("root-user-password", "admin123")
+	viper.SetDefault("root_user_email", "root@admin.com")
+	viper.SetDefault("root_user_password", "admin123")
 
-	rootEmail := viper.GetString("root-user-email")
-	rootPassword := viper.GetString("root-user-password")
+	rootEmail := viper.GetString("root_user_email")
+	rootPassword := viper.GetString("root_user_password")
 
 	log.Info("Создание пользователя рут", "email", rootEmail, "password", rootPassword)
 

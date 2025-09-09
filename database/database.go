@@ -16,9 +16,9 @@ var DB *gorm.DB
 
 // InitDB инициализирует подключение к базе данных
 func InitDB() (*gorm.DB, error) {
-	dsn := viper.GetString("db-connection-string")
+	dsn := viper.GetString("db_connection_string")
 	if dsn == "" {
-		return nil, fmt.Errorf("db-connection-string is not set")
+		return nil, fmt.Errorf("db_connection_string is not set")
 	}
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
