@@ -15,10 +15,10 @@ type BaseModel struct {
 
 type User struct {
 	*BaseModel
-	Username     string   `gorm:"unique;not null" json:"username"`
-	Email        string   `gorm:"unique;not null" json:"email"`
-	PasswordHash string   `gorm:"not null" json:"-"`
-	Roles        []string `json:"roles,omitempty"`
+	Username     string `gorm:"unique;not null" json:"username"`
+	Email        string `gorm:"unique;not null" json:"email"`
+	PasswordHash string `gorm:"not null" json:"-"`
+	Role         string `json:"role,omitempty"`
 }
 
 type Role struct {
@@ -32,12 +32,7 @@ type Role struct {
 // }
 
 func (u *User) IsAdmin() bool {
-	for _, role := range u.Roles {
-		if role == "admin" {
-			return true
-		}
-	}
-	return false
+	return u.Role == "admin"
 }
 
 func (u *User) SetPassword(password string) error {

@@ -38,7 +38,7 @@ func Login(c *gin.Context) {
 	// Создаем claims
 	claims := jwt.MapClaims{
 		"userId": user.ID,
-		"roles":  user.Roles,
+		"roles":  []string{user.Role},
 		"exp":    time.Now().Add(time.Hour * 24).Unix(),
 	}
 
@@ -62,7 +62,7 @@ func Login(c *gin.Context) {
 			"id":       user.ID,
 			"username": user.Username,
 			"email":    user.Email,
-			"roles":    user.Roles,
+			"roles":    []string{user.Role},
 		},
 	})
 }
@@ -105,7 +105,7 @@ func UpdateProfile(c *gin.Context) {
 			"id":       userModel.ID,
 			"username": userModel.Username,
 			"email":    userModel.Email,
-			"role":     userModel.Roles,
+			"role":     []string{userModel.Role},
 		},
 	})
 }
