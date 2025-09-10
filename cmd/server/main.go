@@ -94,7 +94,7 @@ func ensureAdminCreated() {
 	user := models.User{
 		Username: "root",
 		Email:    rootEmail,
-		Roles:    []*models.Role{&adminRole},
+		Roles:    []string{adminRole.Name},
 	}
 
 	if err := user.SetPassword(rootPassword); err != nil {

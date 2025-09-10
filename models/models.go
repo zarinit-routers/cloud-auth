@@ -15,19 +15,15 @@ type BaseModel struct {
 
 type User struct {
 	*BaseModel
-	Username     string  `gorm:"unique;not null" json:"username"`
-	Email        string  `gorm:"unique;not null" json:"email"`
-	PasswordHash string  `gorm:"not null" json:"-"`
-	Roles        []*Role `gorm:"many2many:user_roles;foreignKey:Refer;joinForeignKey:UserReferID;References:UserRefer;joinReferences:ProfileRefer" json:"roles,omitempty"`
-
-	Refer uint `gorm:"index:,unique"`
+	Username     string   `gorm:"unique;not null" json:"username"`
+	Email        string   `gorm:"unique;not null" json:"email"`
+	PasswordHash string   `gorm:"not null" json:"-"`
+	Roles        []string `json:"roles,omitempty"`
 }
 
 type Role struct {
 	*BaseModel
-	Name      string  `gorm:"unique;not null" json:"name"`
-	Users     []*User `gorm:"many2many:user_roles;" json:"users,omitempty"`
-	UserRefer uint    `gorm:"index:,unique"`
+	Name string `gorm:"unique;not null" json:"name"`
 }
 
 // type UserRole struct {
@@ -37,7 +33,7 @@ type Role struct {
 
 func (u *User) IsAdmin() bool {
 	for _, role := range u.Roles {
-		if role.Name == "admin" {
+		if role == "admin" {
 			return true
 		}
 	}
