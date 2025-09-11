@@ -20,17 +20,20 @@ func Login(c *gin.Context) {
 		Password string `json:"password"`
 	}
 	if err := c.ShouldBindJSON(&loginData); err != nil {
+		log.Error("Failed bind JSON", "error", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	var user models.User
 	if err := database.DB.Where("email = ?", loginData.Email).Preload("Roles").First(&user).Error; err != nil {
+		log.Error("Failed get user from database", "error", err, "email", loginData.Email)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
 
 	if !user.CheckPassword(loginData.Password) {
+		log.Error("Passwords don't match", "email", loginData.Email)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
