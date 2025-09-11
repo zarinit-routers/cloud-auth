@@ -1,12 +1,11 @@
 package database
 
 import (
-	"auth-service/models"
 	"fmt"
-	"strings"
 
 	"github.com/charmbracelet/log"
 
+	migrate "github.com/rubenv/sql-migrate"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -47,22 +46,32 @@ func InitDB() (*gorm.DB, error) {
 	return db, nil
 }
 
-// MigrateModels выполняет миграцию с обработкой ошибок
-func MigrateModels(db *gorm.DB) error {
+// Migrate выполняет миграцию с обработкой ошибок
+func Migrate(db *gorm.DB) error {
+	return migrateDB(db, migrate.Up)
+}
 
-	tables := []any{
-		&models.User{},
-		&models.Role{},
+func MigrateDown(db *gorm.DB) error {
+	return migrateDB(db, migrate.Down)
+}
+
+func migrateDB(db *gorm.DB, direction migrate.MigrationDirection) error {
+	migrations := getMigrationSource()
+	sqlDb, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get sql.DB: %w", err)
 	}
-
-	if err := db.AutoMigrate(tables...); err != nil {
-		// Игнорируем ошибку отсутствия ограничения
-		if !strings.Contains(err.Error(), "does not exist") {
-			log.Error("Warning during migration", "error", err)
-			return fmt.Errorf("failed to migrate models: %w", err)
-		}
+	count, err := migrate.Exec(sqlDb, "postgres", migrations, direction)
+	if err != nil {
+		return fmt.Errorf("failed to execute migrations: %w", err)
 	}
-
-	log.Info("Models migrated successfully")
+	log.Info("Executed migrations", "count", count)
 	return nil
+
+}
+
+func getMigrationSource() migrate.MigrationSource {
+	return &migrate.FileMigrationSource{
+		Dir: "migrations",
+	}
 }

@@ -25,7 +25,7 @@ func Login(c *gin.Context) {
 	}
 
 	var user models.User
-	if err := database.DB.Where("email = ?", loginData.Email).First(&user).Error; err != nil {
+	if err := database.DB.Where("email = ?", loginData.Email).Preload("Roles").First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
@@ -36,9 +36,10 @@ func Login(c *gin.Context) {
 	}
 
 	// Создаем claims
+
 	claims := jwt.MapClaims{
 		"userId": user.ID,
-		"roles":  []string{user.Role},
+		"roles":  user.Roles.ToSlice(),
 		"exp":    time.Now().Add(time.Hour * 24).Unix(),
 	}
 
@@ -60,9 +61,9 @@ func Login(c *gin.Context) {
 		"token":   tokenString,
 		"user": gin.H{
 			"id":       user.ID,
-			"username": user.Username,
+			"username": user.Name,
 			"email":    user.Email,
-			"roles":    []string{user.Role},
+			"roles":    user.Roles.ToSlice(),
 		},
 	})
 }
@@ -84,7 +85,7 @@ func UpdateProfile(c *gin.Context) {
 	}
 
 	// Обновляем поля
-	userModel.Username = updateData.Username
+	userModel.Name = updateData.Username
 	userModel.Email = updateData.Email
 
 	if updateData.Password != "" {
@@ -103,9 +104,9 @@ func UpdateProfile(c *gin.Context) {
 		"message": "Profile updated successfully",
 		"user": gin.H{
 			"id":       userModel.ID,
-			"username": userModel.Username,
+			"username": userModel.Name,
 			"email":    userModel.Email,
-			"role":     []string{userModel.Role},
+			"roles":    userModel.Roles.ToSlice(),
 		},
 	})
 }

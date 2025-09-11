@@ -1,0 +1,9 @@
+services:
+  cloud-auth-test-database:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: auth-db
+      POSTGRES_USER: auth-db-user
+      POSTGRES_PASSWORD: CoolPassword123
+    ports:
+      - "5433:5432"

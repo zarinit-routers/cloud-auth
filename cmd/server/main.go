@@ -35,7 +35,7 @@ func initDatabase() {
 		log.Fatal("Failed to connect to database", "error", err)
 	}
 
-	if err := database.MigrateModels(db); err != nil {
+	if err := database.Migrate(db); err != nil {
 		log.Fatal("Failed to migrate models", "error", err)
 	}
 }
@@ -92,9 +92,9 @@ func ensureAdminCreated() {
 		return
 	}
 	user := models.User{
-		Username: "root",
-		Email:    rootEmail,
-		Role:     adminRole.Name,
+		Name:  "root",
+		Email: rootEmail,
+		Roles: models.Roles{adminRole},
 	}
 
 	if err := user.SetPassword(rootPassword); err != nil {

@@ -49,8 +49,8 @@ func CreateUser(c *gin.Context) {
 	}
 
 	user := models.User{
-		Username: userData.Username,
-		Email:    userData.Email,
+		Name:  userData.Username,
+		Email: userData.Email,
 	}
 
 	if err := user.SetPassword(userData.Password); err != nil {
@@ -157,7 +157,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	user.Username = updateData.Username
+	user.Name = updateData.Username
 	user.Email = updateData.Email
 
 	if updateData.Password != "" {

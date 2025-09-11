@@ -15,24 +15,38 @@ type BaseModel struct {
 
 type User struct {
 	*BaseModel
-	Username     string `gorm:"unique;not null" json:"username"`
-	Email        string `gorm:"unique;not null" json:"email"`
-	PasswordHash string `gorm:"not null" json:"-"`
-	Role         string `json:"role,omitempty"`
+	Name         string `json:"username"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"-"`
+	Roles        Roles  `gorm:"many2many:user_roles;" json:"roles,omitempty"`
 }
 
 type Role struct {
 	*BaseModel
-	Name string `gorm:"unique;not null" json:"name"`
+	Name string `gorm:"many2many:user_roles;" json:"name"`
 }
 
-// type UserRole struct {
-// 	UserID uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();not null;primary_key" json:"userId"`
-// 	RoleID uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();not null;primary_key" json:"roleId"`
-// }
+type Roles []Role
+
+func (r Roles) Contains(role string) bool {
+	for _, r := range r {
+		if r.Name == role {
+			return true
+		}
+	}
+	return false
+}
+
+func (r Roles) ToSlice() []string {
+	var roles []string
+	for _, r := range r {
+		roles = append(roles, r.Name)
+	}
+	return roles
+}
 
 func (u *User) IsAdmin() bool {
-	return u.Role == "admin"
+	return u.Roles.Contains("admin")
 }
 
 func (u *User) SetPassword(password string) error {
