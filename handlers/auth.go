@@ -40,10 +40,18 @@ func Login(c *gin.Context) {
 
 	// Создаем claims
 
+	organization, err := getOrganizationId(user)
+	if err != nil {
+		log.Error("Failed get organization", "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get organization"})
+		return
+	}
+
 	claims := jwt.MapClaims{
-		"userId": user.ID,
-		"roles":  user.Roles.ToSlice(),
-		"exp":    time.Now().Add(time.Hour * 24).Unix(),
+		"userId":  user.ID,
+		"roles":   user.Roles.ToSlice(),
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"groupId": organization.String(),
 	}
 
 	// Создаем токен
