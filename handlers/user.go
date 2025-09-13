@@ -78,15 +78,9 @@ func GetSelf(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	id, err := uuid.Parse(data.UserId)
+	user, err := getUserByID(data.UserID)
 	if err != nil {
-		log.Error("Failed to parse user ID", "error", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	user, err := getUserByID(id)
-	if err != nil {
-		log.Error("Failed to get user", "id", id, "error", err)
+		log.Error("Failed to get user", "id", data.UserID, "error", err)
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -150,9 +144,9 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	userHasRights := authData.UserId == user.ID.String() || authData.IsAdmin()
+	userHasRights := authData.UserID == user.ID || authData.IsAdmin()
 	if !userHasRights {
-		log.Error("Update operation not allowed", "authUserID", authData.UserId, "userID", user.ID.String())
+		log.Error("Update operation not allowed", "authUserID", authData.UserID, "userID", user.ID.String())
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to update this user"})
 		return
 	}
@@ -191,12 +185,12 @@ func DeleteUser(c *gin.Context) {
 	}
 
 	if !authData.IsAdmin() {
-		log.Error("Delete operation not allowed for not admins", "authUserID", authData.UserId, "userID", id)
+		log.Error("Delete operation not allowed for not admins", "authUserID", authData.UserID, "userID", id)
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to delete this user"})
 		return
 	}
-	if id.String() == authData.UserId {
-		log.Error("Delete operation not allowed for self", "userID", authData.UserId)
+	if id == authData.UserID {
+		log.Error("Delete operation not allowed for self", "userID", authData.UserID)
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to delete yourself"})
 		return
 	}
