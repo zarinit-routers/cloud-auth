@@ -12,10 +12,11 @@ import (
 	"github.com/zarinit-routers/middleware/auth"
 )
 
-// GetUsers возвращает список всех пользователей
-func GetUsers(c *gin.Context) {
+// ListUsers возвращает список всех пользователей
+func ListUsers(c *gin.Context) {
 	var users []models.User
 	if err := database.DB.Find(&users).Error; err != nil {
+		log.Error("Failed to fetch users", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
 		return
 	}
@@ -25,7 +26,7 @@ func GetUsers(c *gin.Context) {
 		users[i].PasswordHash = ""
 	}
 
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, gin.H{"users": users})
 }
 
 // CreateUser создает нового пользователя

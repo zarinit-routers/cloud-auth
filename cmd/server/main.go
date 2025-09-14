@@ -53,7 +53,7 @@ func main() {
 		api := r.Group("/api/auth")
 		api.POST("/login", handlers.Login)
 		api.GET("/users/me", auth.Middleware(), handlers.GetUser)
-		api.GET("/users", auth.Middleware(auth.AdminOnly()), handlers.GetUsers)
+		api.GET("/users", auth.Middleware(auth.AdminOnly()), handlers.ListUsers)
 		api.GET("/users/:id", auth.Middleware(), handlers.GetUser)
 		api.POST("/users/:id", auth.Middleware(), handlers.UpdateUser)
 		api.POST("/users", handlers.CreateUser)
