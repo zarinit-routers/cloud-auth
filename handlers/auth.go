@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
+	"github.com/zarinit-routers/middleware/auth"
 )
 
 // Login обрабатывает аутентификацию пользователя
@@ -48,10 +49,11 @@ func Login(c *gin.Context) {
 	}
 
 	claims := jwt.MapClaims{
-		"userId":  user.ID,
-		"roles":   user.Roles.ToSlice(),
-		"exp":     time.Now().Add(time.Hour * 24).Unix(),
-		"groupId": organization.String(),
+		auth.KeyUserID:         user.ID,
+		auth.KeyRoles:          user.Roles.ToSlice(),
+		auth.KeyOrganizationID: organization.String(),
+
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	}
 
 	// Создаем токен
