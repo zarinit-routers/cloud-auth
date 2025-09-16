@@ -70,11 +70,7 @@ func getOrganizationId(user models.User) (uuid.UUID, error) {
 		return uuid.Nil, fmt.Errorf("failed create request: %s", err)
 	}
 	request.Header.Add("Authorization", token)
-
 	request.Header.Add("Content-Type", "application/json")
-	if _, err := request.Body.Read(bodyJSON); err != nil {
-		return uuid.Nil, fmt.Errorf("failed read request body")
-	}
 
 	client := http.DefaultClient
 	response, err := client.Do(request)
