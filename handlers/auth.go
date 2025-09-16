@@ -63,6 +63,8 @@ func Login(c *gin.Context) {
 	// Используем единый источник для секретного ключа
 	secretKey := []byte(viper.GetString("jwt-security-key"))
 
+	log.Info("Secret key", "key", secretKey)
+
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
 		log.Error("Failed to generate token", "error", err)
