@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"auth-service/models"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -50,14 +51,6 @@ func getOrganizationId(user models.User) (uuid.UUID, error) {
 		Path:   URIGetOrganizations,
 		Scheme: "http",
 	}
-	request, err := http.NewRequest(http.MethodPost, url.String(), nil)
-	if err != nil {
-		log.Error("Failed to create request", "error", err)
-		return uuid.Nil, fmt.Errorf("failed create request: %s", err)
-	}
-	request.Header.Add("Authorization", token)
-
-	request.Header.Add("Content-Type", "application/json")
 	requestBody := OrganizationRequest{
 		UserID: user.ID,
 	}
@@ -65,8 +58,16 @@ func getOrganizationId(user models.User) (uuid.UUID, error) {
 	bodyJSON, err := json.Marshal(requestBody)
 	if err != nil {
 		log.Error("Failed to encode request body", "error", err)
-		return uuid.Nil, err
+		return uuid.Nil, fmt.Errorf("failed marshall request body: %s", err)
 	}
+	request, err := http.NewRequest(http.MethodPost, url.String(), bytes.NewBuffer(bodyJSON))
+	if err != nil {
+		log.Error("Failed to create request", "error", err)
+		return uuid.Nil, fmt.Errorf("failed create request: %s", err)
+	}
+	request.Header.Add("Authorization", token)
+
+	request.Header.Add("Content-Type", "application/json")
 	if _, err := request.Body.Read(bodyJSON); err != nil {
 		return uuid.Nil, fmt.Errorf("failed read request body")
 	}
