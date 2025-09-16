@@ -45,7 +45,7 @@ func getOrganizationId(user models.User) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 	url := &url.URL{
-		Host:   "localhost",
+		Host:   "cloud-organizations",
 		Path:   URIGetOrganizations,
 		Scheme: "http",
 	}
