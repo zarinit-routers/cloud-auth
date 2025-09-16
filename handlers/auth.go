@@ -53,12 +53,8 @@ func Login(c *gin.Context) {
 		auth.KeyRoles:          user.Roles.ToSlice(),
 		auth.KeyOrganizationID: organization.String(),
 
+		"iat": time.Now().Unix(),
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
-	}
-	if err := claims.Valid(); err != nil {
-		log.Error("Invalid claims", "claims", claims, "error", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
-		return
 	}
 
 	// Создаем токен
