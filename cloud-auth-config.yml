@@ -1,5 +1,6 @@
 port: 5001
 
 organizations:
-  host: localhost
+  host: cloud-organizations
+  port: 8060
   scheme: http

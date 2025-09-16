@@ -40,16 +40,19 @@ type OrganizationRequest struct {
 	UserID uuid.UUID `json:"id"`
 }
 
+func getOrganizationsURL() string {
+	url := &url.URL{
+		Host:   fmt.Sprintf("%s:%d", viper.GetString("organizations.host"), viper.GetInt("organizations.port")),
+		Path:   URIGetOrganizations,
+		Scheme: viper.GetString("organizations.scheme"),
+	}
+	return url.String()
+}
 func getOrganizationId(user models.User) (uuid.UUID, error) {
 	token, err := genIPCToken()
 	if err != nil {
 		log.Error("Failed to generate IPC token", "error", err)
 		return uuid.Nil, err
-	}
-	url := &url.URL{
-		Host:   viper.GetString("organizations.host"),
-		Path:   URIGetOrganizations,
-		Scheme: viper.GetString("organizations.scheme"),
 	}
 	requestBody := OrganizationRequest{
 		UserID: user.ID,
@@ -60,7 +63,8 @@ func getOrganizationId(user models.User) (uuid.UUID, error) {
 		log.Error("Failed to encode request body", "error", err)
 		return uuid.Nil, fmt.Errorf("failed marshall request body: %s", err)
 	}
-	request, err := http.NewRequest(http.MethodPost, url.String(), bytes.NewBuffer(bodyJSON))
+	url := getOrganizationsURL()
+	request, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(bodyJSON))
 	if err != nil {
 		log.Error("Failed to create request", "error", err)
 		return uuid.Nil, fmt.Errorf("failed create request: %s", err)
