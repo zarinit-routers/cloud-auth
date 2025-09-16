@@ -53,8 +53,8 @@ func Login(c *gin.Context) {
 		auth.KeyRoles:          user.Roles.ToSlice(),
 		auth.KeyOrganizationID: organization.String(),
 
-		"iat": time.Now().Unix(),
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"iat": time.Now().UTC().Unix(),
+		"exp": time.Now().UTC().Add(time.Hour * 24).Unix(),
 	}
 
 	// Создаем токен
