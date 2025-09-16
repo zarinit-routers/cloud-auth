@@ -61,7 +61,9 @@ func main() {
 	port := viper.GetInt("port")
 
 	log.Info("Server starting", "port", port)
-	r.Run(fmt.Sprintf(":%d", port))
+	if err := r.Run(fmt.Sprintf(":%d", port)); err != nil {
+		log.Fatal("Failed to start server", "error", err)
+	}
 }
 
 // ensureAdminCreated создает root пользователя если не существует

@@ -3,6 +3,7 @@ package handlers
 import (
 	"auth-service/models"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -50,6 +51,10 @@ func getOrganizationId(user models.User) (uuid.UUID, error) {
 		Scheme: "http",
 	}
 	request, err := http.NewRequest(http.MethodPost, url.String(), nil)
+	if err != nil {
+		log.Error("Failed to create request", "error", err)
+		return uuid.Nil, fmt.Errorf("failed create request: %s", err)
+	}
 	request.Header.Add("Authorization", token)
 
 	request.Header.Add("Content-Type", "application/json")
@@ -62,7 +67,9 @@ func getOrganizationId(user models.User) (uuid.UUID, error) {
 		log.Error("Failed to encode request body", "error", err)
 		return uuid.Nil, err
 	}
-	request.Body.Read(bodyJSON)
+	if _, err := request.Body.Read(bodyJSON); err != nil {
+		return uuid.Nil, fmt.Errorf("failed read request body")
+	}
 
 	client := http.DefaultClient
 	response, err := client.Do(request)
@@ -71,7 +78,11 @@ func getOrganizationId(user models.User) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 
-	defer response.Body.Close()
+	defer func() {
+		if err := response.Body.Close(); err != nil {
+			log.Error("Failed to close response body", "error", err)
+		}
+	}()
 
 	var resp struct {
 		OrganizationID uuid.UUID `json:"organizationId"`
