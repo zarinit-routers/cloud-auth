@@ -11,7 +11,6 @@ import (
 
 	"auth-service/database"
 	"auth-service/handlers"
-	"auth-service/middleware"
 	"auth-service/models"
 )
 
@@ -46,9 +45,6 @@ func main() {
 
 	r := gin.Default()
 
-	r.Use(middleware.CORS())
-
-	// API endpoints
 	{
 		api := r.Group("/api/auth")
 		api.POST("/login", handlers.Login)
