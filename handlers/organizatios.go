@@ -47,9 +47,9 @@ func getOrganizationId(user models.User) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 	url := &url.URL{
-		Host:   "cloud-organizations",
+		Host:   viper.GetString("organizations.host"),
 		Path:   URIGetOrganizations,
-		Scheme: "http",
+		Scheme: viper.GetString("organizations.scheme"),
 	}
 	requestBody := OrganizationRequest{
 		UserID: user.ID,
