@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,7 @@ func init() {
 	if err := godotenv.Load(); err != nil {
 		log.Warn("Error occurred while loading .env file", "error", err)
 	}
-
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	viper.AutomaticEnv()
 	viper.SetConfigName("cloud-auth-config")
 	viper.AddConfigPath(".")
